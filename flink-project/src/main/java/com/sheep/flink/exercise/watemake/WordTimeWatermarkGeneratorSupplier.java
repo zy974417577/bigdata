@@ -1,13 +1,15 @@
-package com.sheep.flink.exercise03.watemake;
+package com.sheep.flink.exercise.watemake;
 
+import com.sheep.flink.exercise.bean.WordTime;
 import com.sheep.flink.exercise02.bean.Persion;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.flink.api.common.eventtime.Watermark;
 import org.apache.flink.api.common.eventtime.WatermarkGenerator;
 import org.apache.flink.api.common.eventtime.WatermarkOutput;
 
-public class MyWatermarkGeneratorSupplier implements WatermarkGenerator<Persion> {
+public class WordTimeWatermarkGeneratorSupplier implements WatermarkGenerator<WordTime> {
 
-    private final long maxOutOfOrderness = 5000L; // 3.5 秒
+    private final long maxOutOfOrderness = 0; // 3.5 秒
 
     private long currentMaxTimestamp;
 
@@ -16,8 +18,15 @@ public class MyWatermarkGeneratorSupplier implements WatermarkGenerator<Persion>
      */
 
     @Override
-    public void onEvent(Persion event, long eventTimestamp, WatermarkOutput output) {
-        currentMaxTimestamp = Math.max(currentMaxTimestamp,Long.valueOf(event.getBirthday()));
+    public void onEvent(WordTime event, long eventTimestamp, WatermarkOutput output) {
+        FastDateFormat dateFormat = FastDateFormat.getInstance("yyyyMMdd HH:mm:ss");
+
+        currentMaxTimestamp = Math.max(currentMaxTimestamp, Long.valueOf(event.getTime()));
+
+        System.out.println("数据本身时间： " + event +
+                " | 最大时间： " + dateFormat.format(currentMaxTimestamp) +
+                " | 数据延迟时间： " + dateFormat.format(currentMaxTimestamp - maxOutOfOrderness));
+
     }
 
     /**
@@ -29,6 +38,6 @@ public class MyWatermarkGeneratorSupplier implements WatermarkGenerator<Persion>
     @Override
     public void onPeriodicEmit(WatermarkOutput output) {
 //        output.emitWatermark(new Watermark(System.currentTimeMillis()-5000L));
-        output.emitWatermark(new Watermark(currentMaxTimestamp - maxOutOfOrderness - 1));
+        output.emitWatermark(new Watermark(currentMaxTimestamp - maxOutOfOrderness));
     }
 }

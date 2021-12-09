@@ -1,12 +1,12 @@
-package com.sheep.flink.exercise03.watemake;
+package com.sheep.flink.exercise.watemake;
 
-import com.sheep.flink.exercise02.bean.Persion;
+import com.sheep.flink.exercise.bean.WordTime;
 import org.apache.flink.api.common.eventtime.TimestampAssigner;
 
-public class MyTimestampAssigner implements TimestampAssigner<Persion> {
+public class WordTimeTimestampAssigner implements TimestampAssigner<WordTime> {
     @Override
-    public long extractTimestamp(Persion element, long recordTimestamp) {
+    public long extractTimestamp(WordTime element, long recordTimestamp) {
 //        System.out.println("时间戳为: "+Long.valueOf(element.getBirthday()));
-        return Long.valueOf(element.getBirthday());
+        return Long.valueOf(element.getTime());
     }
 }
